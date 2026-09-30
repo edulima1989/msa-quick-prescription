@@ -1,0 +1,426 @@
+{
+  "info": {
+    "name": "RecetaRapida - servicios de prescripcion",
+    "_postman_id": "b94c9f34-12dc-49d4-a8b8-d41b26c8d77e",
+    "description": "Coleccion para el microservicio de prescripcion (sin auth). Iniciar el servicio e importar esta coleccion en Postman. Los catalogos son de solo lectura: cargar registros CIE-10 y vademecum en la base de datos antes de ejecutar las consultas por identificador y la generacion de recetas. Ejecutar primero las listas para guardar el primer codigo e ID disponibles. Si se usa un API Gateway, configurar su token externamente en Postman; el servicio de auth no forma parte de esta coleccion. Los filtros opcionales se pueden habilitar en la pestaña Params.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "codigoCie10",
+      "value": "J00",
+      "type": "string"
+    },
+    {
+      "key": "vademecumId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "CIE-10",
+      "item": [
+        {
+          "name": "Listar CIE-10",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cie10?page=1&size=20&sort=codigo,asc",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "cie10" ],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "20" },
+                { "key": "sort", "value": "codigo,asc" },
+                { "key": "q", "value": "J00", "disabled": true },
+                { "key": "categoria", "value": "Respiratorio", "disabled": true }
+              ]
+            },
+            "description": "Pagina desde 1; size entre 1 y 100. q busca codigo o descripcion; categoria filtra por categoria. Sort permitido: codigo o descripcion, asc o desc."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 y pagina CIE-10', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.content).to.be.an('array');",
+                  "  pm.expect(data.page).to.eql(1);",
+                  "  pm.expect(data).to.have.all.keys('content', 'page', 'size', 'totalElements', 'totalPages');",
+                  "  if (data.content.length > 0) pm.collectionVariables.set('codigoCie10', data.content[0].codigo);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener CIE-10 por codigo",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/cie10/{{codigoCie10}}",
+            "description": "Usa codigoCie10, actualizado por la lista si hay datos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 y codigo solicitado', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().codigo).to.eql(pm.collectionVariables.get('codigoCie10'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar vademecum de CIE-10",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cie10/{{codigoCie10}}/vademecum?page=1&size=20&sort=nombre,asc",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "cie10", "{{codigoCie10}}", "vademecum" ],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "20" },
+                { "key": "sort", "value": "nombre,asc" }
+              ]
+            },
+            "description": "Relaciones paginadas. Sort: nombre o casaComercial, asc o desc."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 y relaciones paginadas', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().content).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vademecum",
+      "item": [
+        {
+          "name": "Listar vademecum",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/vademecum?page=1&size=20&sort=nombre,asc",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "vademecum" ],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "20" },
+                { "key": "sort", "value": "nombre,asc" },
+                { "key": "q", "value": "Paracetamol", "disabled": true },
+                { "key": "casaComercial", "value": "Laboratorio", "disabled": true }
+              ]
+            },
+            "description": "q busca nombre o composicion; casaComercial filtra por casa comercial. Sort: nombre o casaComercial, asc o desc."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 y pagina de vademecum', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.content).to.be.an('array');",
+                  "  pm.expect(data.page).to.eql(1);",
+                  "  pm.expect(data).to.have.all.keys('content', 'page', 'size', 'totalElements', 'totalPages');",
+                  "  if (data.content.length > 0) pm.collectionVariables.set('vademecumId', String(data.content[0].id));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener medicamento por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/vademecum/{{vademecumId}}",
+            "description": "Usa vademecumId, actualizado por la lista si hay datos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 y ID solicitado', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get('vademecumId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar CIE-10 de medicamento",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/vademecum/{{vademecumId}}/cie10?page=1&size=20&sort=codigo,asc",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "vademecum", "{{vademecumId}}", "cie10" ],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "20" },
+                { "key": "sort", "value": "codigo,asc" }
+              ]
+            },
+            "description": "Relaciones paginadas. Sort: codigo o descripcion, asc o desc."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 y relaciones paginadas', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().content).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Recetas",
+      "item": [
+        {
+          "name": "Generar receta PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/pdf" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente\": { \"nombre\": \"Paciente Ejemplo\", \"edad\": 30 },\n  \"profesional\": { \"nombre\": \"Profesional Ejemplo\" },\n  \"fecha\": \"2026-09-30\",\n  \"codigosCie10\": [\"{{codigoCie10}}\"],\n  \"medicamentos\": [\n    {\n      \"vademecumId\": {{vademecumId}},\n      \"dosis\": \"500 mg\",\n      \"frecuencia\": \"Cada 8 horas\",\n      \"duracion\": \"5 dias\",\n      \"indicaciones\": \"Tomar despues de comer\"\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/recetas",
+            "description": "No persiste la receta. Requiere codigos e ID existentes. En Postman usar Send and Download para guardar el PDF."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200, PDF y datos no cacheables', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf');",
+                  "  pm.expect(pm.response.headers.get('Cache-Control')).to.include('no-store');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Errores esperados",
+      "item": [
+        {
+          "name": "Pagina fuera de rango - 400",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/cie10?page=0"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Problem', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json().status).to.eql(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ordenamiento no permitido - 400",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vademecum?sort=id,asc"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Problem', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "CIE-10 inexistente - 404",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/cie10/Z99.9999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 Problem', function () {",
+                  "  pm.response.to.have.status(404);",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Medicamento inexistente - 404",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vademecum/2147483647"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 Problem', function () {",
+                  "  pm.response.to.have.status(404);",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Receta con codigo inexistente - 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/pdf, application/problem+json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente\": { \"nombre\": \"Paciente Ejemplo\", \"edad\": 30 },\n  \"profesional\": { \"nombre\": \"Profesional Ejemplo\" },\n  \"fecha\": \"2026-09-30\",\n  \"codigosCie10\": [\"Z99.9999\"],\n  \"medicamentos\": [{ \"vademecumId\": {{vademecumId}}, \"dosis\": \"500 mg\", \"frecuencia\": \"Cada 8 horas\", \"duracion\": \"5 dias\" }]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/recetas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('422 Problem', function () {",
+                  "  pm.response.to.have.status(422);",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Receta con datos invalidos - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/pdf, application/problem+json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente\": { \"nombre\": \"A\", \"edad\": 131 },\n  \"profesional\": { \"nombre\": \"Profesional Ejemplo\" },\n  \"fecha\": \"2026-09-30\",\n  \"codigosCie10\": [\"{{codigoCie10}}\"],\n  \"medicamentos\": [{ \"vademecumId\": {{vademecumId}}, \"dosis\": \"500 mg\", \"frecuencia\": \"Cada 8 horas\", \"duracion\": \"5 dias\" }]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/recetas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Problem con errores de validacion', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json().errores).to.be.an('array').that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
