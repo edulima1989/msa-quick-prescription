@@ -2,7 +2,7 @@
   "info": {
     "name": "RecetaRapida - servicios de prescripcion",
     "_postman_id": "b94c9f34-12dc-49d4-a8b8-d41b26c8d77e",
-    "description": "Coleccion para el microservicio de prescripcion (sin auth). Iniciar el servicio e importar esta coleccion en Postman. Los catalogos son de solo lectura: cargar registros CIE-10 y vademecum en la base de datos antes de ejecutar las consultas por identificador y la generacion de recetas. Ejecutar primero las listas para guardar el primer codigo e ID disponibles. Si se usa un API Gateway, configurar su token externamente en Postman; el servicio de auth no forma parte de esta coleccion. Los filtros opcionales se pueden habilitar en la pestaña Params.",
+    "description": "Coleccion para el microservicio de prescripcion (sin auth). La URL local usa el puerto 8081 y el context-path /prescriptions definidos en application.yaml. Los catalogos son de solo lectura: cargar registros CIE-10 y vademecum en la base de datos antes de ejecutar las consultas por identificador y la generacion de recetas. Ejecutar primero las listas para guardar el primer codigo e ID disponibles. Si se usa un API Gateway, ajustar baseUrl y configurar su token externamente en Postman; el servicio de auth no forma parte de esta coleccion. Los filtros opcionales se pueden habilitar en la pestaña Params.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -11,7 +11,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:8080/api/v1",
+      "value": "http://localhost:8081/prescriptions/api/v1",
       "type": "string"
     },
     {
