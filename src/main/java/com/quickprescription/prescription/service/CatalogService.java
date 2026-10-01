@@ -23,8 +23,7 @@ public class CatalogService {
 
   public PageResponse<Cie10Response> listCie(int page, int size, String sort, String q, String categoria) {
     Pageable pageable = PageRequestFactory.create(page, size, sort, CIE_SORTS);
-    Page<Cie10> result = q != null && !q.isBlank() ? cie10s.search(q, pageable)
-        : categoria != null && !categoria.isBlank() ? cie10s.findByCategoria(categoria, pageable) : cie10s.findAll(pageable);
+    Page<Cie10> result = cie10s.findAll(CatalogFilters.cie10(q, categoria), pageable);
     return mapper.toPage(result.map(mapper::toResponse));
   }
   public Cie10Response getCie(String codigo) {
@@ -39,8 +38,7 @@ public class CatalogService {
   }
   public PageResponse<VademecumResponse> listVade(int page, int size, String sort, String q, String casaComercial) {
     Pageable pageable = PageRequestFactory.create(page, size, sort, VADE_SORTS);
-    Page<Vademecum> result = q != null && !q.isBlank() ? vademecums.search(q, pageable)
-        : casaComercial != null && !casaComercial.isBlank() ? vademecums.findByCasaComercial(casaComercial, pageable) : vademecums.findAll(pageable);
+    Page<Vademecum> result = vademecums.findAll(CatalogFilters.vademecum(q, casaComercial), pageable);
     return mapper.toPage(result.map(mapper::toResponse));
   }
   public VademecumResponse getVade(Integer id) {

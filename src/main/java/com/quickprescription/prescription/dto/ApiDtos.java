@@ -19,15 +19,15 @@ public final class ApiDtos {
   public record Profesional(@NotBlank @Size(min=2,max=150) String nombre) {
     @Override public String toString() { return "Profesional[***]"; }
   }
-  public record Medicamento(@NotNull Integer vademecumId,
+  public record Medicamento(@NotNull @Min(1) Integer vademecumId,
       @NotBlank @Size(max=100) String dosis, @NotBlank @Size(max=100) String frecuencia,
       @NotBlank @Size(max=100) String duracion, @Size(max=500) String indicaciones) {
     @Override public String toString() { return "Medicamento[***]"; }
   }
   public record RecetaRequest(@Valid @NotNull Paciente paciente,
       @Valid @NotNull Profesional profesional, @NotNull LocalDate fecha,
-      @NotEmpty @Size(max=10) List<@Pattern(regexp="^[A-Z][0-9]{2}(\\.[0-9A-Z]{1,4})?$") String> codigosCie10,
-      @NotEmpty @Size(max=10) List<@Valid Medicamento> medicamentos) {
+      @NotEmpty @Size(max=10) List<@NotNull @Pattern(regexp="^[A-Z][0-9]{2}(\\.[0-9A-Z]{1,4})?$") String> codigosCie10,
+      @NotEmpty @Size(max=10) List<@NotNull @Valid Medicamento> medicamentos) {
     @Override public String toString() { return "RecetaRequest[***]"; }
   }
 }
