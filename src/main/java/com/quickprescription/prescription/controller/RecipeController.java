@@ -14,6 +14,9 @@ public class RecipeController {
   @PostMapping(produces = MediaType.APPLICATION_PDF_VALUE)
   public ResponseEntity<byte[]> generate(@Valid @RequestBody RecetaRequest request) {
     return ResponseEntity.ok().cacheControl(CacheControl.noStore())
-        .contentType(MediaType.APPLICATION_PDF).body(service.generate(request));
+        .contentType(MediaType.APPLICATION_PDF)
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.attachment().filename("receta.pdf").build().toString())
+        .body(service.generate(request));
   }
 }
