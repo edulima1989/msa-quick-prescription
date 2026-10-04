@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jacoco'
     id 'org.springframework.boot' version '4.1.1'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -32,6 +33,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testCompileOnly 'org.projectlombok:lombok'
@@ -42,4 +44,45 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
+
+// ---- Cobertura (JaCoCo) ----
+// Se excluyen clases triviales o sin lógica (main, DTOs, modelos).
+def jacocoExclusions = [
+        'com/quickprescription/prescription/MsaQuickPrescriptionApplication*',
+        'com/quickprescription/prescription/dto/**',
+        'com/quickprescription/prescription/model/**',
+        'com/quickprescription/prescription/mapper/CatalogMapperImpl*'
+]
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.required = true
+        xml.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExclusions)
+        })
+    }
+}
+
+jacocoTestCoverageVerification {
+    afterEvaluate {
+        classDirectories.setFrom(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExclusions)
+        })
+    }
+    violationRules {
+        rule {
+            limit {
+                counter = 'INSTRUCTION'
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification

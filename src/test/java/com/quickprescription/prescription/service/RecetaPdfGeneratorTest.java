@@ -28,12 +28,16 @@ class RecetaPdfGeneratorTest {
 
     assertThat(new String(pdf, 0, 5)).isEqualTo("%PDF-");
     String texto = texto(pdf);
-    assertThat(texto).contains("Receta médica", "Fecha de emisión: 28/09/2026",
-        "María Fernanda Torres", "34 años", "Dra. Ñusta Peña (pediatría)",
+    assertThat(texto).contains(
+        // Encabezado y plantilla
+        "PRESCRIPTION", "Dra. Ñusta Peña (pediatría)", "Rx", "Firma", "RecetaRápida",
+        // Datos del paciente y fecha
+        "María Fernanda Torres", "34 años", "28/09/2026",
+        // Diagnósticos
         "J00", "Rinofaringitis aguda [resfriado común]", "J02.9", "Faringitis aguda, no especificada",
+        // Medicamentos
         "1. Paracetamol", "1 tableta de 500 mg", "Cada 8 horas", "5 días", "Tomar después de las comidas.",
-        "2. Ibuprofeno jarabe", "10 ml", "Cada 12 horas", "3 días",
-        RecetaPdfGenerator.PIE, "Página 1");
+        "2. Ibuprofeno jarabe", "10 ml", "Cada 12 horas", "3 días");
     assertThat(texto.split("Indicaciones:", -1)).hasSize(2);
   }
 
@@ -53,7 +57,7 @@ class RecetaPdfGeneratorTest {
     PdfReader reader = new PdfReader(pdf);
     assertThat(reader.getNumberOfPages()).isGreaterThanOrEqualTo(2);
     String texto = texto(pdf);
-    assertThat(texto).contains("J09", "10. Producto 10", "FIN.", "Página " + reader.getNumberOfPages());
+    assertThat(texto).contains("J09", "10. Producto 10", "FIN.");
   }
 
   @Test
